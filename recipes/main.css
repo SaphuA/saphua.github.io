@@ -1,0 +1,165 @@
+[v-cloak] {
+  display: none;
+}
+
+#cover {
+  position: absolute;
+  background-color: #1f2d40;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  text-align: center;
+  padding-top: 200px;
+}
+
+body {
+  font-size: 10px;
+  margin: 0;
+  padding: 0;
+
+  background-color: var(--surface-a);
+  font-family: var(--font-family);
+  color: var(--text-color);
+}
+
+.grid {
+  display: flex;
+  align-items: center;
+}
+
+.col {
+  flex: 1;
+}
+
+.col-range {
+  flex: 0 0 30px;
+}
+
+.col-slider {
+  margin-right: 20px;
+  flex-basis: 200px;
+}
+
+.p-toolbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1;
+}
+
+.p-tooltip {
+  z-index: 500;
+}
+
+.p-dialog .p-dialog-header {
+  padding: 10px !important;
+}
+
+.p-dropdown-items-wrapper {
+  max-height: 450px !important;
+}
+
+.favicon {
+  color: gold;
+  cursor: pointer;
+}
+
+/* Tiles */
+.tiles {
+  padding-top: 60px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.tiles .tile {
+  flex: 1 1 350px;
+  max-width: 600px;
+  position: relative;
+}
+
+.tiles .tile img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.tiles .tile .content {
+  margin: 10px;
+}
+
+.tiles .tile .title .name {
+  font-size: 15px;
+}
+
+.tiles .tile .title .headline {
+  font-size: 12px;
+  font-style: italic;
+}
+
+.tiles .tile .title .versions {
+  font-size: 10px;
+  font-style: italic;
+}
+
+/* Details */
+.details .top {
+  margin-top: 10px;
+  height: 250px;
+}
+
+.details .top img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  float: left;
+}
+
+.details .title .name {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.details .title .headline {
+  font-style: italic;
+}
+
+.details .title .id {
+  font-size: 8px;
+}
+
+.details .p-button-sm {
+  font-size: 10px;
+}
+
+.details .ingredients {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.details .ingredient {
+  width: 220px;
+  word-wrap: break-word;
+  display: flex;
+  align-items: center;
+}
+
+.details .ingredient img {
+  width: 70px;
+}
+
+.details .steps .step {
+  display: flex;
+  border-bottom: 1px solid white;
+}
+
+.details .steps .step .image,
+.details .steps .step img {
+  width: 250px;
+}
+
+.details .steps .step .instructions {
+  margin: 10px;
+}

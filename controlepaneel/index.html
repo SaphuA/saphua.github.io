@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Controlepaneel</title>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.2.4/pixi.min.js"
+      integrity="sha256-5j/MTZ4A3D/1ZAeBTUrY5bKvNGvtp/ltP3Z9P9cTyVc="
+      crossorigin="anonymous"
+    ></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/pure/2.0.1/pure-min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.min.css"
+    />
+    <style>
+      body,
+      html {
+        background-color: #666;
+        height: 100%;
+        width: 100%;
+        padding: 0px;
+        margin: 0px;
+      }
+      .flex {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+      #container {
+        background: url(metal.jpg) no-repeat center center fixed;
+        width: 500px;
+        height: 500px;
+        border: 1px solid #333;
+      }
+      #reset {
+        cursor: pointer;
+        border: none;
+      }
+      #cover {
+        color: #ccc;
+        display: none;
+        background-color: #666;
+        position: absolute;
+        height: 100%;
+        width: 100%;
+      }
+      #ok {
+        width: 380px;
+        padding: 10px;
+        background-color: #444;
+        border: 5px double #999;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="cover">
+      <div class="flex">
+        <div id="ok">
+          Na een luide knal wordt met veel gekraak en gepiep hangar #13 geopend.
+          <ul>
+            <li>Open de brief met hangar #13.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="flex">
+      <div id="container"></div>
+      <img
+        src="reset.png"
+        id="reset"
+        alt="Reset"
+        title="Reset"
+        width="42"
+        height="42"
+      />
+    </div>
+    <script>
+      const animateCSS = (element, animation, prefix = "animate__") =>
+        new Promise((resolve, reject) => {
+          const animationName = `${prefix}${animation}`;
+          const node = document.querySelector(element);
+          node.classList.add(`${prefix}animated`, animationName);
+
+          function handleAnimationEnd() {
+            node.classList.remove(`${prefix}animated`, animationName);
+            node.removeEventListener("animationend", handleAnimationEnd);
+            resolve();
+          }
+
+          node.addEventListener("animationend", handleAnimationEnd);
+        });
+
+      var width = 500;
+      var height = 500;
+
+      var startX = 80;
+      var startY = 80;
+      var tileS = 80;
+
+      var handleBounds = {
+        sx: startX,
+        ex: startX + 4 * tileS,
+        sy: startY,
+        ey: startY + 4 * tileS,
+      };
+
+      var app = new PIXI.Application({
+        antialias: true,
+        width: width,
+        height: height,
+        transparent: true,
+      });
+
+      document.getElementById("container").appendChild(app.view);
+
+      var onDragStart = function (event) {
+        this.dragEventData = event.data;
+        this.alpha = 0.5;
+        this.dragging = true;
+      };
+
+      var onDragEnd = function () {
+        this.alpha = 1;
+        this.dragging = false;
+        this.dragEventData = null;
+      };
+
+      var onDragMove = function (bounds) {
+        if (this.dragging) {
+          var pos = this.dragEventData.getLocalPosition(this.parent);
+          this.position.x = Math.max(bounds.sx, Math.min(bounds.ex, pos.x));
+          this.position.y = Math.max(bounds.sy, Math.min(bounds.ey, pos.y));
+        }
+      };
+
+      var createSprite = (container, sprite, x, y, isButton = false) => {
+        var s = new PIXI.Sprite(
+          typeof sprite == "string" ? resources[sprite].texture : sprite
+        );
+        s.anchor.set(0.5);
+        s.position.set(x, y);
+        s.interactive = isButton;
+        s.buttonMode = isButton;
+        container.addChild(s);
+        return s;
+      };
+
+      var Sprites = {
+        On: "on.png",
+        Off: "off.png",
+        Plug: "plug.png",
+        Wizard: "wizard.png",
+        Crab: "crab.png",
+        Tree: "tree.png",
+        Rocket: "rocket.png",
+        Pig: "pig.png",
+        Cake: "cake.png",
+        Handle: "handle.png",
+      };
+
+      for (var sprite in Sprites) {
+        PIXI.Loader.shared.add(Sprites[sprite]);
+      }
+
+      var resources = null;
+
+      // Init
+      var init = () => {
+        var container = new PIXI.Container();
+        app.stage.addChild(container);
+
+        var handleTexture = app.renderer.generateTexture(
+          new PIXI.Graphics()
+            .lineStyle(3, 0x666666)
+            .beginFill(0xaaaaaa)
+            .drawCircle(0, 0, 13)
+            .lineStyle(0)
+            .beginFill(0xeeeeee)
+            .drawCircle(0, 0, 9)
+            .endFill()
+        );
+
+        var drawCurve = (cable) => {
+          cable.curve
+            .clear()
+            .lineStyle(8, cable.color)
+            .moveTo(cable.start.x, cable.start.y)
+            .bezierCurveTo(
+              cable.start.x,
+              cable.start.y,
+              cable.end.x,
+              cable.end.y,
+              cable.end.x,
+              cable.end.y
+            );
+        };
+
+        // Icons
+        createSprite(
+          container,
+          Sprites.Wizard,
+          startX + 1 * tileS,
+          startY + 0 * tileS
+        );
+        createSprite(
+          container,
+          Sprites.Cake,
+          startX + 2 * tileS,
+          startY + 0 * tileS
+        );
+        createSprite(
+          container,
+          Sprites.Crab,
+          startX + 3 * tileS,
+          startY + 0 * tileS
+        );
+        createSprite(
+          container,
+          Sprites.Pig,
+          startX + 0 * tileS,
+          startY + 1 * tileS
+        );
+        createSprite(
+          container,
+          Sprites.Tree,
+          startX + 0 * tileS,
+          startY + 2 * tileS
+        );
+        createSprite(
+          container,
+          Sprites.Rocket,
+          startX + 0 * tileS,
+          startY + 3 * tileS
+        );
+
+        var plugs = [];
+        var toggles = [];
+        var cables = [];
+
+        var checkDesiredState = () => {
+          var checkCable = (cable, plug1, plug2) => {
+            return (
+              plug1.handle &&
+              plug1.handle.cable == cable &&
+              plug2.handle &&
+              plug2.handle.cable == cable
+            );
+          };
+
+          if (
+            toggles[0].isEnabled &&
+            !toggles[1].isEnabled &&
+            toggles[2].isEnabled &&
+            !toggles[3].isEnabled &&
+            toggles[4].isEnabled &&
+            !toggles[5].isEnabled &&
+            checkCable(cables[0], plugs[5], plugs[8]) &&
+            checkCable(cables[1], plugs[1], plugs[6]) &&
+            checkCable(cables[2], plugs[3], plugs[7])
+          ) {
+            pow();
+          }
+        };
+
+        // Plugs
+        for (var x = 1; x < 4; x++) {
+          for (var y = 1; y < 4; y++) {
+            var plug = createSprite(
+              container,
+              Sprites.Plug,
+              startX + x * tileS,
+              startY + y * tileS
+            );
+            plugs.push(plug);
+          }
+        }
+
+        // Toggles
+        var createToggle = (x, y, enabled = false) => {
+          var sprite = enabled ? Sprites.On : Sprites.Off;
+          var toggle = createSprite(container, sprite, x, y, true);
+          toggle.isEnabled = enabled;
+          toggle.on("click", () => {
+            var isEnabled = toggle.isEnabled;
+            var sprite = isEnabled ? Sprites.Off : Sprites.On;
+            toggle.texture = resources[sprite].texture;
+            toggle.isEnabled = !toggle.isEnabled;
+            checkDesiredState();
+          });
+          toggles.push(toggle);
+        };
+
+        createToggle(startX + 4 * tileS, startY + 1 * tileS);
+        createToggle(startX + 4 * tileS, startY + 2 * tileS, true);
+        createToggle(startX + 4 * tileS, startY + 3 * tileS);
+        createToggle(startX + 1 * tileS, startY + 4 * tileS);
+        createToggle(startX + 2 * tileS, startY + 4 * tileS, true);
+        createToggle(startX + 3 * tileS, startY + 4 * tileS, true);
+
+        // Cables
+        var createCable = (tileY, color) => {
+          var cable = {
+            color: color,
+            curve: new PIXI.Graphics(),
+          };
+
+          container.addChild(cable.curve);
+          cables.push(cable);
+
+          var createHandle = (tileX, tileY) => {
+            var handle = createSprite(
+              container,
+              handleTexture,
+              startX + tileX * tileS,
+              startY + tileY * tileS,
+              true
+            );
+
+            handle.cable = cable;
+
+            for (var i = 0; i < plugs.length; i++) {
+              var plug = plugs[i];
+              var w = plug.width / 2;
+              if (handle.x > plug.x - w && handle.x < plug.x + w) {
+                if (handle.y > plug.y - w && handle.y < plug.y + w) {
+                  handle.plug = plug;
+                  plug.handle = handle;
+                  break;
+                }
+              }
+            }
+
+            handle
+              .on("mousedown", onDragStart)
+              .on("mouseup", () => {
+                onDragEnd.call(handle);
+                handle.position.set(handle.plug.x, handle.plug.y);
+                drawCurve(cable);
+                checkDesiredState();
+              })
+              .on("mouseupoutside", () => {
+                onDragEnd.call(handle);
+                handle.position.set(handle.plug.x, handle.plug.y);
+                drawCurve(cable);
+                checkDesiredState();
+              })
+              .on("mousemove", () => {
+                onDragMove.call(handle, handleBounds);
+                if (handle.dragging) {
+                  for (var i = 0; i < plugs.length; i++) {
+                    var plug = plugs[i];
+                    var w = plug.width / 3;
+                    if (handle.x > plug.x - w && handle.x < plug.x + w) {
+                      if (handle.y > plug.y - w && handle.y < plug.y + w) {
+                        if (!plug.handle || plug.handle == handle) {
+                          handle.position.set(plug.x, plug.y);
+                          handle.plug.handle = null;
+                          handle.plug = plug;
+                          plug.handle = handle;
+                          break;
+                        }
+                      }
+                    }
+                  }
+                  drawCurve(cable);
+                }
+              });
+            return handle;
+          };
+
+          cable.start = createHandle(1, tileY);
+          cable.end = createHandle(3, tileY);
+          drawCurve(cable);
+        };
+
+        createCable(1, 0xcc0000);
+        createCable(2, 0x00cc00);
+        createCable(3, 0xcccc00);
+
+        return container;
+      };
+
+      var container = null;
+      PIXI.Loader.shared.load((loader, r) => {
+        resources = r;
+        container = init();
+      });
+
+      document.querySelector("#reset").onclick = function () {
+        app.stage.removeChild(container);
+        container = init();
+      };
+
+      function pow() {
+        document.querySelector("#cover").style.display = "block";
+        animateCSS("#cover", "fadeIn").then((c) => {});
+      }
+    </script>
+  </body>
+</html>

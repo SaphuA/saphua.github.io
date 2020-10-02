@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Kluisjes</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/pure/2.0.1/pure-min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.min.css"
+    />
+    <style>
+      html {
+        background: url(locker.jpg) no-repeat center center fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+        font-family: "Balsamiq Sans", cursive;
+      }
+      #closed {
+        position: absolute;
+        left: 80px;
+        bottom: 80px;
+        padding: 40px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border: 2px solid #201ead;
+        border-radius: 11px;
+      }
+      #open {
+        position: absolute;
+        left: 160px;
+        bottom: 160px;
+        padding: 40px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border: 2px solid #1ead2a;
+        border-radius: 11px;
+      }
+      label {
+        width: 6em !important;
+      }
+      .button-green {
+        color: white;
+        border-radius: 4px;
+        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+        background: rgb(28, 184, 65);
+      }
+      .button-red {
+        color: white;
+        border-radius: 4px;
+        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+        background: rgb(202, 60, 60);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="closed">
+      <form
+        id="form"
+        class="pure-form pure-form-aligned"
+        onsubmit="return false"
+      >
+        <fieldset>
+          <div class="pure-control-group">
+            <label>Kluis #:</label>
+            <input id="num1" type="text" maxlength="1" size="1" />
+            <input id="num2" type="text" maxlength="1" size="1" />
+          </div>
+          <div class="pure-control-group">
+            <label>Pin code:</label>
+            <input id="pin1" type="text" maxlength="1" size="1" />
+            <input id="pin2" type="text" maxlength="1" size="1" />
+            <input id="pin3" type="text" maxlength="1" size="1" />
+            <input id="pin4" type="text" maxlength="1" size="1" />
+          </div>
+          <div class="pure-control-group">
+            <label></label>
+            <a id="submit" class="pure-button button-green" href="#"
+              >Invoeren</a
+            >
+          </div>
+        </fieldset>
+      </form>
+    </div>
+    <div id="open" style="display: none;">
+      Je hoort een zachte klik. Kluis #53 is geopend!
+      <ul>
+        <li>
+          Open de brief met het kluisje.
+        </li>
+      </ul>
+    </div>
+    <script>
+      const animateCSS = (element, animation, prefix = "animate__") =>
+        new Promise((resolve, reject) => {
+          const animationName = `${prefix}${animation}`;
+          const node = document.querySelector(element);
+          node.classList.add(`${prefix}animated`, animationName);
+
+          function handleAnimationEnd() {
+            node.classList.remove(`${prefix}animated`, animationName);
+            node.removeEventListener("animationend", handleAnimationEnd);
+            resolve();
+          }
+
+          node.addEventListener("animationend", handleAnimationEnd);
+        });
+
+      document.querySelector("#submit").onclick = function () {
+        var num = "".concat(
+          document.querySelector("#num1").value,
+          document.querySelector("#num2").value
+        );
+
+        var pin = "".concat(
+          document.querySelector("#pin1").value,
+          document.querySelector("#pin2").value,
+          document.querySelector("#pin3").value,
+          document.querySelector("#pin4").value
+        );
+
+        if (check(num, pin)) {
+          // Only speed up for transition
+          document.querySelector("#closed").classList.add("animate__faster");
+          document.querySelector("#open").classList.add("animate__faster");
+          animateCSS("#closed", "fadeOut").then((c) => {
+            document.querySelector("#closed").style.display = "none";
+            document.querySelector("#open").style.display = "block";
+            animateCSS("#open", "zoomIn").then((c) => {});
+          });
+        } else {
+          this.classList.remove("button-green");
+          this.classList.add("button-red");
+          animateCSS("#closed", "headShake").then((c) => {
+            this.classList.remove("button-red");
+            this.classList.add("button-green");
+          });
+        }
+      };
+
+      function check(num, pin) {
+        return btoa(num) == "NTM=" && btoa(pin) == "NDM1Mg==";
+      }
+    </script>
+  </body>
+</html>

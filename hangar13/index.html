@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Hangar #13</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/pure/2.0.1/pure-min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.min.css"
+    />
+    <style>
+      html {
+        background: url(world.jpg) no-repeat center center fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+        font-family: "Balsamiq Sans", cursive;
+      }
+      body,
+      html {
+        height: 100%;
+        width: 100%;
+        padding: 0px;
+        margin: 0px;
+        color: white;
+      }
+      #flex {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+      #container {
+        height: 50px;
+        padding: 10px;
+        background-color: rgba(0, 0, 0, 0.6);
+        border: 1px dashed #333;
+      }
+      .button-green {
+        color: white;
+        border-radius: 4px;
+        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+        background: rgb(28, 184, 65);
+      }
+      .blink {
+        margin-bottom: -7px;
+      }
+      #on {
+        margin-left: -24px;
+      }
+      #ok {
+        width: 380px;
+        padding: 10px;
+        background-color: rgba(0, 50, 0, 0.6);
+        border: 1px dashed #353;
+      }
+      #nok {
+        width: 300px;
+        padding: 10px;
+        background-color: rgba(50, 0, 0, 0.6);
+        border: 1px dashed #533;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="flex">
+      <div id="container">
+        Voer een bestemming in:
+        <form
+          id="form"
+          class="pure-form pure-form-aligned"
+          onsubmit="return false"
+        >
+          <input id="dest" type="text" maxlength="30" size="20" />
+          <a id="submit" class="pure-button button-green" href="#">Invoeren</a>
+          <img src="off.png" class="blink" /><img
+            id="on"
+            src="on.png"
+            class="blink animate__animated animate__flash animate__infinite animate__slow"
+          />
+        </form>
+      </div>
+      <div id="nok" style="display: none;">Bestemming onbekend.</div>
+      <div id="ok" style="display: none;">
+        Bestemming akkoord. De automatische piloot zal in werking treden.
+        <ul>
+          <li>Open de brief met de Griekse letter lambda: λ</li>
+        </ul>
+      </div>
+    </div>
+    <script>
+      const animateCSS = (element, animation, prefix = "animate__") =>
+        new Promise((resolve, reject) => {
+          const animationName = `${prefix}${animation}`;
+          const node = document.querySelector(element);
+          node.classList.add(`${prefix}animated`, animationName);
+
+          function handleAnimationEnd() {
+            node.classList.remove(`${prefix}animated`, animationName);
+            node.removeEventListener("animationend", handleAnimationEnd);
+            resolve();
+          }
+
+          node.addEventListener("animationend", handleAnimationEnd);
+        });
+
+      document.querySelector("#submit").onclick = function () {
+        var dest = document.querySelector("#dest").value;
+        if (dest && dest.length > 0) {
+          if (check(dest)) {
+            animateCSS("#container", "fadeOutUp").then((c) => {
+              document.querySelector("#container").style.display = "none";
+              document.querySelector("#ok").style.display = "block";
+              animateCSS("#ok", "fadeInUp").then((c) => {});
+            });
+          } else {
+            animateCSS("#container", "fadeOutUp").then((c) => {
+              document.querySelector("#container").style.display = "none";
+              document.querySelector("#nok").style.display = "block";
+              animateCSS("#nok", "fadeInUp").then((c) => {
+                animateCSS("#nok", "fadeOutUp").then((c) => {
+                  document.querySelector("#container").style.display = "block";
+                  document.querySelector("#nok").style.display = "none";
+                  animateCSS("#container", "fadeInUp").then((c) => {});
+                });
+              });
+            });
+          }
+        }
+
+        function check(dest) {
+          return btoa(dest.toLowerCase()) == "YXRoZW5l";
+        }
+      };
+    </script>
+  </body>
+</html>

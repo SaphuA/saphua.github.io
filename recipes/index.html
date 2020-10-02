@@ -1,0 +1,253 @@
+<html>
+  <head>
+    <meta name="referrer" content="never" />
+    <meta name="referrer" content="no-referrer" />
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-179431869-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "UA-179431869-1");
+    </script>
+
+    <script src="hf/ingredients.js?version=5"></script>
+    <script src="hf/tags.js?version=5"></script>
+    <script src="hf/cuisines.js?version=5"></script>
+    <script src="hf/recipes.js?version=5"></script>
+    <link href="main.css?version=5" rel="stylesheet" />
+
+    <script src="https://unpkg.com/vue@2.6.12/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-router@3.4.5/dist/vue-router.js"></script>
+    <script src="https://unpkg.com/primevue@2.0.9/components/toolbar/toolbar.umd.min.js"></script>
+    <script src="https://unpkg.com/primevue@2.0.9/components/slider/slider.umd.min.js"></script>
+    <script src="https://unpkg.com/primevue@2.0.9/components/dropdown/dropdown.umd.min.js"></script>
+    <script src="https://unpkg.com/primevue@2.0.9/components/dialog/dialog.umd.min.js"></script>
+    <script src="https://unpkg.com/primevue@2.0.9/components/button/button.umd.min.js"></script>
+    <script src="https://unpkg.com/primevue@2.0.9/components/tooltip/tooltip.umd.min.js"></script>
+
+    <link href="https://unpkg.com/primevue@2.0.9/resources/themes/vela-green/theme.css" rel="stylesheet" />
+    <link href="https://unpkg.com/primevue@2.0.9/resources/primevue.min.css" rel="stylesheet" />
+    <link href="https://unpkg.com/primeicons/primeicons.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <div id="app" v-cloak>
+      <div v-if="!ac" id="cover">
+        <form @submit.prevent="ps">
+          <input type="password" v-model="pv" ref="pi" />
+          <input type="submit" value="Enter" />
+        </form>
+      </div>
+      <div v-if="ac">
+        <Toolbar>
+          <template slot="left">
+            <div class="grid">
+              <div>
+                <i class="pi pi-clock" v-tooltip="'Bereidingstijd'"></i>
+              </div>
+              <div style="width: 40px; padding-left: 5px">{{selectedPrepTimesRange[0]}}</div>
+              <div style="width: 200px">
+                <Slider v-model="selectedPrepTimesRange" :min="prepTimesMin" :max="prepTimesMax" :range="true" />
+              </div>
+              <div style="width: 70px; padding-left: 15px">{{selectedPrepTimesRange[1]}}</div>
+              <div>
+                <i class="pi pi-chart-line" v-tooltip="'Moeilijkheid'"></i>
+              </div>
+              <div style="width: 40px; padding-left: 10px">{{selectedComplexities[0]}}</div>
+              <div style="width: 100px">
+                <Slider v-model="selectedComplexities" :min="complexityMin" :max="complexityMax" :range="true" />
+              </div>
+              <div style="width: 50px; padding-left: 15px">{{selectedComplexities[1]}}</div>
+              <div>
+                <Dropdown
+                  v-model="selectedCuisine"
+                  :options="hfCuisines"
+                  option-label="name"
+                  placeholder="Keuken..."
+                  :filter="true"
+                  filter-placeholder="Zoek keuken"
+                  :show-clear="true"
+                />
+              </div>
+              <div>
+                <Dropdown
+                  v-model="selectedTag"
+                  :options="hfTags"
+                  option-label="name"
+                  placeholder="Tag..."
+                  :filter="true"
+                  filter-placeholder="Zoek tag"
+                  :show-clear="true"
+                />
+              </div>
+              <div>
+                <Dropdown
+                  v-model="selectedIngredient"
+                  :options="hfIngredients"
+                  option-label="name"
+                  placeholder="Ingredient..."
+                  :filter="true"
+                  filter-placeholder="Zoek ingredient"
+                  :show-clear="true"
+                />
+              </div>
+              <div style="padding-left: 15px">
+                <i
+                  class="pi favicon"
+                  :class="onlyFavorites ? 'pi-star' : 'pi-star-o'"
+                  @click="onlyFavorites = !onlyFavorites"
+                  v-tooltip="'Favorieten'"
+                ></i>
+              </div>
+            </div>
+          </template>
+
+          <template slot="right"> Recepten: {{hfRecipeVersionsFiltered.length}} / {{hfRecipeVersions.length}} </template>
+        </Toolbar>
+
+        <div class="tiles">
+          <div v-for="recipeVersions in hfRecipeVersionsFiltered" class="tile">
+            <img
+              v-if="localImages"
+              loading="lazy"
+              :src="'hf/recipe/' + recipeVersions[0].imagePath"
+              @click="navigateToRecipe(recipeVersions[0])"
+            />
+            <img
+              v-if="!localImages"
+              loading="lazy"
+              :src="'https://img.hellofresh.com/w_450/hellofresh_s3' +
+          recipeVersions[0].imagePath"
+              @click="navigateToRecipe(recipeVersions[0])"
+            />
+            <div class="content">
+              <p class="title">
+                <span class="name">
+                  <i
+                    class="favicon pi"
+                    @click="toggleFavorite(recipeVersions[0])"
+                    :class="favorites.includes(recipeVersions[0].groupId) ? 'pi-star' : 'pi-star-o'"
+                    v-tooltip="'Toevoegen aan / verwijderen uit favorieten'"
+                  ></i>
+                  {{recipeVersions[0].name}}</span
+                >
+                <span class="headline">{{recipeVersions[0].headline ? recipeVersions[0].headline : ''}}</span>
+                <span class="versions">{{recipeVersions.length > 1 ? `(${recipeVersions.length} versies)` : ''}}</span>
+              </p>
+              <div>
+                <i class="pi pi-clock" v-tooltip="'Bereidingstijd'"></i> {{recipeVersions[0].prepTimeMinutes}}m
+                <i class="pi pi-chart-line" v-tooltip="'Moeilijkheid'"></i> {{recipeVersions[0].difficulty}}
+                <span class="p-tag p-tag-rounded" v-for="tag in recipeVersions[0].tags"> {{hfTagsNormalized[tag.id].name}} </span>
+                <span class="p-tag p-tag-rounded p-tag-info" v-for="cuisine in recipeVersions[0].cuisines">
+                  {{hfCuisinesNormalized[cuisine.id].name}}
+                </span>
+              </div>
+              <p class="description">{{recipeVersions[0].description}}</p>
+            </div>
+          </div>
+        </div>
+
+        <Dialog2
+          :header="selectedRecipe ? selectedRecipe.name : ''"
+          :visible="selectedRecipeVersions != null"
+          :modal="true"
+          :dismissable-mask="true"
+          @update:visible="closeModal"
+        >
+          <div v-if="selectedRecipeVersions != null" class="details">
+            <div class="top">
+              <img v-if="localImages" loading="lazy" :src="'hf/recipe' + selectedRecipe.imagePath" />
+              <img v-if="!localImages" loading="lazy" :src="'https://img.hellofresh.com/w_1280/hellofresh_s3' + selectedRecipe.imagePath" />
+            </div>
+            <p class="title">
+              <span class="name">
+                <i
+                  class="favicon pi"
+                  @click="toggleFavorite(selectedRecipe)"
+                  :class="favorites.includes(selectedRecipe.groupId) ? 'pi-star' : 'pi-star-o'"
+                  v-tooltip="'Toevoegen aan / verwijderen uit favorieten'"
+                ></i>
+                {{selectedRecipe.name}}</span
+              >
+              <span class="headline">{{selectedRecipe.headline ? selectedRecipe.headline : ''}}</span>
+              <span class="id">{{selectedRecipe.id}}</span>
+            </p>
+            <div>
+              <i class="pi pi-clock" v-tooltip="'Bereidingstijd'"></i> {{selectedRecipe.prepTimeMinutes}}m
+              <i class="pi pi-chart-line" v-tooltip="'Moeilijkheid'"></i> {{selectedRecipe.difficulty}}
+              <span class="p-tag p-tag-rounded" v-for="tag in selectedRecipe.tags"> {{hfTagsNormalized[tag.id].name}} </span>
+              <span class="p-tag p-tag-rounded p-tag-info" v-for="cuisine in selectedRecipe.cuisines">
+                {{hfCuisinesNormalized[cuisine.id].name}}
+              </span>
+            </div>
+            <p>{{selectedRecipe.description}}</p>
+            <div class="grid" v-if="selectedRecipeVersions.length > 1">
+              <div>Versie:&nbsp;</div>
+              <div>
+                <Button2
+                  v-for="n in selectedRecipeVersions.length"
+                  :key="'version' + n"
+                  @click="selectRecipeVersionIndex(n - 1)"
+                  class="p-button-sm p-button-rounded"
+                  :class="selectedRecipeIndex == n - 1 ? '' : 'p-button-outlined'"
+                  :label="n.toString()"
+                />
+              </div>
+            </div>
+            <div class="grid">
+              <div>Porties:&nbsp;</div>
+              <div>
+                <Button2
+                  v-for="n in 20"
+                  :key="'yield' + n"
+                  @click="selectYield(n)"
+                  class="p-button-sm p-button-rounded"
+                  :class="selectedYield == n ? '' : 'p-button-outlined'"
+                  v-if="hasYield(selectedRecipe, n)"
+                  :label="n.toString()"
+                />
+              </div>
+            </div>
+            <div class="ingredients">
+              <div v-for="ingredient in selectedRecipe.ingredients" class="ingredient">
+                <img
+                  v-if="localImages"
+                  loading="lazy"
+                  :src="'hf/ingredient' + helloFreshIngredientsNormalized[ingredient.id].imagePath"
+                  onerror="this.style.visibility='hidden'"
+                />
+                <img
+                  v-if="!localImages"
+                  loading="lazy"
+                  :src="'https://img.hellofresh.com/w_70/hellofresh_s3' + hfIngredientsNormalized[ingredient.id].imagePath"
+                  onerror="this.style.visibility='hidden'"
+                />
+                {{hfIngredientsNormalized[ingredient.id].name}}: {{getYield(selectedRecipe, ingredient.id, selectedYield).amount}}
+                {{getYield(selectedRecipe, ingredient.id, selectedYield).unit}}
+              </div>
+            </div>
+            <div class="steps">
+              <div v-for="step in selectedRecipe.steps" class="step">
+                <div v-for="image in step.images" class="image">
+                  <img v-if="localImages" loading="lazy" :src="'hf/step' + image.path" onerror="this.style.visibility='hidden'" />
+                  <img
+                    width="250"
+                    v-if="!localImages"
+                    loading="lazy"
+                    :src="'https://img.hellofresh.com/w_250/hellofresh_s3' + image.path"
+                    onerror="this.style.visibility='hidden'"
+                  />
+                </div>
+                <div class="instructions">{{step.instructions}}</div>
+              </div>
+            </div>
+          </div>
+        </Dialog2>
+      </div>
+    </div>
+    <script src="main.js?version=5"></script>
+  </body>
+</html>
