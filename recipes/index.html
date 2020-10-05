@@ -111,7 +111,7 @@
           <template slot="right"> Recepten: {{hfRecipeVersionsFiltered.length}} / {{hfRecipeVersions.length}} </template>
         </Toolbar>
 
-        <DataView :value="hfRecipeVersionsFiltered" layout="grid" :paginator="true" :rows="20">
+        <DataView :value="hfRecipeVersionsFiltered" layout="grid" :paginator="true" :rows="100">
           <template #grid="slotProps">
             <div class="tile p-col-12 p-md-6 p-lg-3">
               <img
