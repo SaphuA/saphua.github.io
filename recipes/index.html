@@ -13,11 +13,11 @@
       gtag("config", "UA-179431869-1");
     </script>
 
-    <script src="hf/ingredients.js?version=5"></script>
-    <script src="hf/tags.js?version=5"></script>
-    <script src="hf/cuisines.js?version=5"></script>
-    <script src="hf/recipes.js?version=5"></script>
-    <link href="main.css?version=5" rel="stylesheet" />
+    <script src="hf/ingredients.js?version=6"></script>
+    <script src="hf/tags.js?version=6"></script>
+    <script src="hf/cuisines.js?version=6"></script>
+    <script src="hf/recipes.js?version=6"></script>
+    <link href="main.css?version=6" rel="stylesheet" />
 
     <script src="https://unpkg.com/vue@2.6.12/dist/vue.js"></script>
     <script src="https://unpkg.com/vue-router@3.4.5/dist/vue-router.js"></script>
@@ -27,9 +27,12 @@
     <script src="https://unpkg.com/primevue@2.0.9/components/dialog/dialog.umd.min.js"></script>
     <script src="https://unpkg.com/primevue@2.0.9/components/button/button.umd.min.js"></script>
     <script src="https://unpkg.com/primevue@2.0.9/components/tooltip/tooltip.umd.min.js"></script>
+    <script src="https://unpkg.com/primevue@2.0.9/components/dataview/dataview.umd.min.js"></script>
 
     <link href="https://unpkg.com/primevue@2.0.9/resources/themes/vela-green/theme.css" rel="stylesheet" />
     <link href="https://unpkg.com/primevue@2.0.9/resources/primevue.min.css" rel="stylesheet" />
+    <link href="https://unpkg.com/primeflex@2.0.0/primeflex.css" rel="stylesheet" />
+
     <link href="https://unpkg.com/primeicons/primeicons.css" rel="stylesheet" />
   </head>
 
@@ -40,6 +43,7 @@
           <input type="password" v-model="pv" ref="pi" />
           <input type="submit" value="Enter" />
         </form>
+        <span id="version">{{"Versie: ?version=6".replace("?version=", "")}}</span>
       </div>
       <div v-if="ac">
         <Toolbar>
@@ -104,51 +108,51 @@
               </div>
             </div>
           </template>
-
           <template slot="right"> Recepten: {{hfRecipeVersionsFiltered.length}} / {{hfRecipeVersions.length}} </template>
         </Toolbar>
 
-        <div class="tiles">
-          <div v-for="recipeVersions in hfRecipeVersionsFiltered" class="tile">
-            <img
-              v-if="localImages"
-              loading="lazy"
-              :src="'hf/recipe/' + recipeVersions[0].imagePath"
-              @click="navigateToRecipe(recipeVersions[0])"
-            />
-            <img
-              v-if="!localImages"
-              loading="lazy"
-              :src="'https://img.hellofresh.com/w_450/hellofresh_s3' +
-          recipeVersions[0].imagePath"
-              @click="navigateToRecipe(recipeVersions[0])"
-            />
-            <div class="content">
-              <p class="title">
-                <span class="name">
-                  <i
-                    class="favicon pi"
-                    @click="toggleFavorite(recipeVersions[0])"
-                    :class="favorites.includes(recipeVersions[0].groupId) ? 'pi-star' : 'pi-star-o'"
-                    v-tooltip="'Toevoegen aan / verwijderen uit favorieten'"
-                  ></i>
-                  {{recipeVersions[0].name}}</span
-                >
-                <span class="headline">{{recipeVersions[0].headline ? recipeVersions[0].headline : ''}}</span>
-                <span class="versions">{{recipeVersions.length > 1 ? `(${recipeVersions.length} versies)` : ''}}</span>
-              </p>
-              <div>
-                <i class="pi pi-clock" v-tooltip="'Bereidingstijd'"></i> {{recipeVersions[0].prepTimeMinutes}}m
-                <i class="pi pi-chart-line" v-tooltip="'Moeilijkheid'"></i> {{recipeVersions[0].difficulty}}
-                <span class="p-tag p-tag-rounded" v-for="tag in recipeVersions[0].tags"> {{hfTagsNormalized[tag.id].name}} </span>
-                <span class="p-tag p-tag-rounded p-tag-info" v-for="cuisine in recipeVersions[0].cuisines">
-                  {{hfCuisinesNormalized[cuisine.id].name}}
-                </span>
+        <DataView :value="hfRecipeVersionsFiltered" layout="grid" :paginator="true" :rows="20">
+          <template #grid="slotProps">
+            <div class="tile p-col-12 p-md-6 p-lg-3">
+              <img
+                v-if="localImages"
+                loading="lazy"
+                :src="'hf/recipe/' + slotProps.data[0].imagePath"
+                @click="navigateToRecipe(slotProps.data[0])"
+              />
+              <img
+                v-if="!localImages"
+                loading="lazy"
+                :src="'https://img.hellofresh.com/w_450/hellofresh_s3' +
+            slotProps.data[0].imagePath"
+                @click="navigateToRecipe(slotProps.data[0])"
+              />
+              <div class="content">
+                <p class="title">
+                  <span class="name">
+                    <i
+                      class="favicon pi"
+                      @click="toggleFavorite(slotProps.data[0])"
+                      :class="favorites.includes(slotProps.data[0].groupId) ? 'pi-star' : 'pi-star-o'"
+                      v-tooltip="'Toevoegen aan / verwijderen uit favorieten'"
+                    ></i>
+                    {{slotProps.data[0].name}}</span
+                  >
+                  <span class="headline">{{slotProps.data[0].headline ? slotProps.data[0].headline : ''}}</span>
+                </p>
+                <div>
+                  <i class="pi pi-clock" v-tooltip="'Bereidingstijd'"></i> {{slotProps.data[0].prepTimeMinutes}}m
+                  <i class="pi pi-chart-line" v-tooltip="'Moeilijkheid'"></i> {{slotProps.data[0].difficulty}}
+                  <span class="p-tag p-tag-rounded" v-for="tag in slotProps.data[0].tags"> {{hfTagsNormalized[tag.id].name}} </span>
+                  <span class="p-tag p-tag-rounded p-tag-info" v-for="cuisine in slotProps.data[0].cuisines">
+                    {{hfCuisinesNormalized[cuisine.id].name}}
+                  </span>
+                </div>
+                <p>{{slotProps.data[0].description}}</p>
               </div>
-              <p class="description">{{recipeVersions[0].description}}</p>
             </div>
-          </div>
-        </div>
+          </template>
+        </DataView>
 
         <Dialog2
           :header="selectedRecipe ? selectedRecipe.name : ''"
@@ -248,6 +252,6 @@
         </Dialog2>
       </div>
     </div>
-    <script src="main.js?version=5"></script>
+    <script src="main.js?version=6"></script>
   </body>
 </html>

@@ -14,6 +14,12 @@
   padding-top: 200px;
 }
 
+#version {
+  position: absolute;
+  bottom: 10;
+  right: 10;
+}
+
 body {
   font-size: 10px;
   margin: 0;
@@ -49,6 +55,10 @@ body {
   z-index: 1;
 }
 
+.p-dataview {
+  padding-top: 60px;
+}
+
 .p-tooltip {
   z-index: 500;
 }
@@ -67,40 +77,24 @@ body {
 }
 
 /* Tiles */
-.tiles {
-  padding-top: 60px;
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.tiles .tile {
-  flex: 1 1 350px;
-  max-width: 600px;
-  position: relative;
-}
-
-.tiles .tile img {
+.tile img {
   width: 100%;
   height: 180px;
   object-fit: cover;
   cursor: pointer;
 }
 
-.tiles .tile .content {
+.tile .content {
   margin: 10px;
+  font-size: 11px;
 }
 
-.tiles .tile .title .name {
+.tile .title .name {
   font-size: 15px;
 }
 
-.tiles .tile .title .headline {
+.tile .title .headline {
   font-size: 12px;
-  font-style: italic;
-}
-
-.tiles .tile .title .versions {
-  font-size: 10px;
   font-style: italic;
 }
 

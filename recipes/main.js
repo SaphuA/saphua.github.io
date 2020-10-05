@@ -5,7 +5,7 @@ window.addEventListener("load", function () {
     routes: [{ path: "/:groupId" }],
   });
 
-  var app = new Vue({
+  new Vue({
     directives: {
       tooltip: tooltip,
     },
@@ -16,6 +16,7 @@ window.addEventListener("load", function () {
       Dropdown: dropdown,
       Dialog2: dialog,
       Button2: button,
+      Dataview: dataview,
     },
     el: "#app",
     data: {
