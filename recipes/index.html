@@ -13,11 +13,11 @@
       gtag("config", "UA-179431869-1");
     </script>
 
-    <script src="hf/ingredients.js?version=6"></script>
-    <script src="hf/tags.js?version=6"></script>
-    <script src="hf/cuisines.js?version=6"></script>
-    <script src="hf/recipes.js?version=6"></script>
-    <link href="main.css?version=6" rel="stylesheet" />
+    <script src="hf/ingredients.js?version=7"></script>
+    <script src="hf/tags.js?version=7"></script>
+    <script src="hf/cuisines.js?version=7"></script>
+    <script src="hf/recipes.js?version=7"></script>
+    <link href="main.css?version=7" rel="stylesheet" />
 
     <script src="https://unpkg.com/vue@2.6.12/dist/vue.js"></script>
     <script src="https://unpkg.com/vue-router@3.4.5/dist/vue-router.js"></script>
@@ -43,28 +43,32 @@
           <input type="password" v-model="pv" ref="pi" />
           <input type="submit" value="Enter" />
         </form>
-        <span id="version">{{"Versie: ?version=6".replace("?version=", "")}}</span>
+        <span id="version">{{"Versie: ?version=7".replace("?version=", "")}}</span>
       </div>
       <div v-if="ac">
         <Toolbar>
           <template slot="left">
             <div class="grid">
-              <div>
-                <i class="pi pi-clock" v-tooltip="'Bereidingstijd'"></i>
+              <div class="grid" style="margin-right: 15px">
+                <div style="padding-right: 10px">
+                  <i class="pi pi-clock" v-tooltip="'Bereidingstijd'"></i>
+                </div>
+                <div style="width: 30px">{{selectedPrepTimesRange[0]}}</div>
+                <div style="width: 150px">
+                  <Slider v-model="selectedPrepTimesRange" :min="prepTimesMin" :max="prepTimesMax" :range="true" />
+                </div>
+                <div style="width: 30px; padding-left: 15px">{{selectedPrepTimesRange[1]}}</div>
               </div>
-              <div style="width: 40px; padding-left: 5px">{{selectedPrepTimesRange[0]}}</div>
-              <div style="width: 200px">
-                <Slider v-model="selectedPrepTimesRange" :min="prepTimesMin" :max="prepTimesMax" :range="true" />
+              <div class="grid" style="margin-right: 15px">
+                <div style="padding-right: 10px">
+                  <i class="pi pi-chart-line" v-tooltip="'Moeilijkheid'"></i>
+                </div>
+                <div style="width: 30px">{{selectedComplexities[0]}}</div>
+                <div style="width: 100px">
+                  <Slider v-model="selectedComplexities" :min="complexityMin" :max="complexityMax" :range="true" />
+                </div>
+                <div style="width: 30px; padding-left: 15px">{{selectedComplexities[1]}}</div>
               </div>
-              <div style="width: 70px; padding-left: 15px">{{selectedPrepTimesRange[1]}}</div>
-              <div>
-                <i class="pi pi-chart-line" v-tooltip="'Moeilijkheid'"></i>
-              </div>
-              <div style="width: 40px; padding-left: 10px">{{selectedComplexities[0]}}</div>
-              <div style="width: 100px">
-                <Slider v-model="selectedComplexities" :min="complexityMin" :max="complexityMax" :range="true" />
-              </div>
-              <div style="width: 50px; padding-left: 15px">{{selectedComplexities[1]}}</div>
               <div>
                 <Dropdown
                   v-model="selectedCuisine"
@@ -87,7 +91,7 @@
                   :show-clear="true"
                 />
               </div>
-              <div>
+              <div style="margin-right: 15px">
                 <Dropdown
                   v-model="selectedIngredient"
                   :options="hfIngredients"
@@ -98,7 +102,10 @@
                   :show-clear="true"
                 />
               </div>
-              <div style="padding-left: 15px">
+              <div style="margin-right: 15px">
+                <input class="p-inputtext" placeholder="Zoeken..." type="text" v-model="search" />
+              </div>
+              <div>
                 <i
                   class="pi favicon"
                   :class="onlyFavorites ? 'pi-star' : 'pi-star-o'"
@@ -252,6 +259,6 @@
         </Dialog2>
       </div>
     </div>
-    <script src="main.js?version=6"></script>
+    <script src="main.js?version=7"></script>
   </body>
 </html>

@@ -27,7 +27,13 @@ window.addEventListener("load", function () {
 
       hfCuisinesNormalized: _hfCuisinesNormalized,
       hfIngredientsNormalized: _hfIngredientsNormalized,
-      hfRecipeVersions: _hfRecipeVersions,
+      hfRecipeVersions: _hfRecipeVersions.map((v) =>
+        v.map((r) => {
+          r.lowerName = r.name.toLowerCase();
+          r.lowerDescription = r.description.toLowerCase();
+          return r;
+        })
+      ),
       hfTagsNormalized: _hfTagsNormalized,
 
       prepTimesMin: 0,
@@ -41,6 +47,8 @@ window.addEventListener("load", function () {
       selectedCuisine: null,
       selectedTag: null,
       selectedIngredient: null,
+
+      search: "",
 
       onlyFavorites: false,
 
@@ -122,6 +130,7 @@ window.addEventListener("load", function () {
         return Object.keys(this.hfIngredientsNormalized).map((key) => this.hfIngredientsNormalized[key]);
       },
       hfRecipeVersionsFiltered: function () {
+        var lowerSearch = this.search.toLowerCase();
         return this.hfRecipeVersions
           .map((v) =>
             v.filter(
@@ -133,7 +142,8 @@ window.addEventListener("load", function () {
                 (this.selectedCuisine == null || r.cuisines.some((c) => c.id === this.selectedCuisine.id)) &&
                 (this.selectedTag == null || r.tags.some((c) => c.id === this.selectedTag.id)) &&
                 (this.selectedIngredient == null || r.ingredients.some((c) => c.id === this.selectedIngredient.id)) &&
-                (!this.onlyFavorites || this.favorites.some((f) => f === r.groupId))
+                (!this.onlyFavorites || this.favorites.some((f) => f === r.groupId)) &&
+                (!this.search || this.search.length < 3 || r.lowerName.includes(lowerSearch) || r.lowerDescription.includes(lowerSearch))
               //(this.selectedCuisines.length === 0 || (r.cuisines && this.selectedCuisines.every((c) => r.cuisines.some((s) => s.id === c.id)))) &&
               //(this.selectedTags.length === 0 || (r.tags && this.selectedTags.every((c) => r.tags.some((s) => s.id === c.id)))) &&
               //(this.selectedIngredients.length === 0 || (r.ingredients && this.selectedIngredients.every((c) => r.ingredients.some((s) => s.id === c.id))))

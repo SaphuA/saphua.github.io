@@ -32,20 +32,8 @@ body {
 
 .grid {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-}
-
-.col {
-  flex: 1;
-}
-
-.col-range {
-  flex: 0 0 30px;
-}
-
-.col-slider {
-  margin-right: 20px;
-  flex-basis: 200px;
 }
 
 .p-toolbar {
